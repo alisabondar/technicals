@@ -1,7 +1,7 @@
 class BinaryTree {
-    constructor(node, left, right) {
+    constructor(val, left, right) {
         // value and max 2 children
-        this.node = node;
+        this.val = val;
         this.left = left;
         this.right = right;
     }
@@ -9,83 +9,86 @@ class BinaryTree {
     insert(value) {
         // account for 0 parents
         // traverse by value
-        if (!this.node) {
-            this.node = value;
-        } else if (this.node > value) {
-            // insert to left
+        if (value < this.val) {
+            // insert to left - less than parent
             if (!this.left) {
-                this.left = value;
+                // create a tree to use methods - insert
+                // this.left = new BinaryTree(value);
+                // was making new BinaryTree instead of Two
+                // use constructor
+                this.left = new this.constructor(value);
             } else {
-                // traverse until no children
-                let child = this.left;
-                if (child > value) {
-                    while (child.left) {
-                        if (!child.left) {
-                            child.left = value;
-                        } else {
-                            child = child.left;
-                        }
-                    }
-                } else {
-                    child = this.right;
-                    while (child.right) {
-                        if (!child.right) {
-                            child.right = value;
-                        } else {
-                            child = child.right;
-                        }
-                    }
-                }
+                this.left.insert(value);
             }
         } else {
-            // insert to right
+            // insert to right - more than parent
             if (!this.right) {
-                this.right = value;
+                this.right = new this.constructor(value);
             } else {
-                let child = this.right;
-                if (child > value) {
-                    child = child.left;
-                    while (child.left) {
-                        if (!child.left) {
-                            child.left = value;
-                        } else {
-                            child = child.left;
-                        }
-                    }
-                } else {
-                    while (child.right) {
-                        if (!child.right) {
-                            child.right = value;
-                        } else {
-                            child = child.right;
-                        }
-                    }
-                }
+                this.right.insert(value);
             }
         }
     }
 
     // return the node that holds the value
-    // searchDepth(target) {
-    //     // traverse and return target
-    //     // return children as well?
-    // }
+    searchDepth(target) {
+        // traverse and return target
+        // return children as well
+        console.log(this ? this.val : 'null');
+        if (target === this.val) {
+            return this;
+        }
+        if (target < this.val) {
+            if (this.left) {
+                return this.left.searchDepth(target);
+            }
+            return null;
+        } else {
+            if (this.right) {
+                return this.right.searchDepth(target);
+            }
+            return null;
+        }
+    }
 }
 
 // part 2
-// class BinaryTreeTwo extends BinaryTree {
-//     constructor() // make this inherit the parent's
+class BinaryTreeTwo extends BinaryTree {
+    constructor(val, left, right) {
+        super(val, left, right) // make this inherit the parent's
+    }
+    searchBreadth(target, queue = []) {
+        // FIFO
+        console.log(this ? this.val : 'null');
+        if (target === this.val) {
+            return this;
+        }
 
-//     searchBreadth()
-// }
+        // account for undefined
+        if (this.left) {
+            queue.push(this.left);
+        }
+        if (this.right) {
+            queue.push(this.right);
+        }
 
-let tree = new BinaryTree();
+        if (queue.length === 0) {
+            return null;
+        }
+
+        return queue.shift().searchBreadth(target, queue);
+    }
+}
+
+let tree = new BinaryTreeTwo(5, null, null);
 tree.insert(5);
 tree.insert(6);
 tree.insert(4);
 tree.insert(3);
 tree.insert(7);
-console.log(tree);
+// console.log(tree);
+tree.searchBreadth(4);
+tree.searchBreadth(2);
 
 /**
  * what is the space complexity?
@@ -94,7 +97,7 @@ console.log(tree);
  * time complexity of insertion?
  * logarithmic
  * time complexity of lookup?
- * logarithmic
+ * logarithmic except for BreadthSearch (always linear because no left/right comparison)
  *
  * Now forget about being balanced:
  *
